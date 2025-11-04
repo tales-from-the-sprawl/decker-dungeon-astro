@@ -25,4 +25,10 @@ export default defineConfig({
       base: "./session"
     }
   },
+
+  vite: {
+    server: {
+      allowedHosts: ["ddng.databladet.se"]
+    }
+  }    
 });
