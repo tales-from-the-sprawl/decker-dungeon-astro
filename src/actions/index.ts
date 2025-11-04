@@ -1,4 +1,4 @@
-import { defineAction } from "astro:actions";
+import { ActionError, defineAction } from "astro:actions";
 import { getEntry } from "astro:content";
 import { z } from "astro:schema";
 
@@ -11,37 +11,39 @@ export const server = {
     }),
     handler: async (input, context) => {
       const node = await getEntry("dungeon", input.node);
-      const session = (await context.session?.get(`node:${input.node}`)) ?? {};
       if (node === undefined) {
-        return { error: "not found" };
+        throw new ActionError({
+          code: "NOT_FOUND",
+          message: "not found",
+        });
       }
-      if (!node.data.protect || node.data.protect.password === input.password) {
+
+      const session = (await context.session?.get(`node:${input.node}`)) ?? {
+        granted: !node.data.password,
+        retries: 0,
+      };
+
+      context.session?.set(`node:${input.node}`, session);
+
+      if (session.granted) {
+        return { granted: true };
+      } else if (!node.data.password || node.data.password === input.password) {
         session.granted = true;
         context.session?.set(`node:${input.node}`, session);
+
         return { granted: true };
-      } else {
-        return { error: "wrong password" };
-      }
-    },
-  }),
-  linkPassword: defineAction({
-    accept: "form",
-    input: z.object({
-      node: z.string(),
-      password: z.string(),
-    }),
-    handler: async (input, context) => {
-      const node = await getEntry("dungeon", input.node);
-      const session = (await context.session?.get(`node:${input.node}`)) ?? {};
-      if (node === undefined) {
-        return { error: "not found" };
-      }
-      if (!node.data.protect || node.data.protect.password === input.password) {
-        session.granted = true;
+      } else if (session.retries < (node.data.retries ?? 1)) {
+        session.retries += 1;
         context.session?.set(`node:${input.node}`, session);
-        return { granted: true };
+        throw new ActionError({
+          code: "FORBIDDEN",
+          message: node.data.error_to?.[session.retries - 1] ?? undefined,
+        });
       } else {
-        return { error: "wrong password" };
+        throw new ActionError({
+          code: "FORBIDDEN",
+          message: node.data.failure_to ?? undefined,
+        });
       }
     },
   }),

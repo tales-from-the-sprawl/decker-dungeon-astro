@@ -4,6 +4,12 @@ import { getEntry, render } from "astro:content";
 import BaseHead from "../../components/BaseHead.astro";
 import { slide } from "astro:transitions";
 import NodePassword from "../../components/NodePassword.astro";
+import { actions } from "astro:actions";
+
+const result = Astro.getActionResult(actions.nodePassword);
+if (result && result.error) {
+  return Astro.redirect(result.error.message);
+}
 
 // 1. Get the slug from the incoming server request
 const { slug } = Astro.params;
@@ -11,16 +17,19 @@ if (slug === undefined) {
   return Astro.redirect("/404");
 }
 // 2. Query for the entry directly using the request slug
-const post = await getEntry("dungeon", slug);
+const node = await getEntry("dungeon", slug);
 // 3. Redirect if the entry does not exist
-if (post === undefined) {
+if (node === undefined) {
   return Astro.redirect("/404");
 }
 
 const session = await Astro.session?.get(`node:${slug}`);
+if ((session?.retries ?? 0) >= (node.data.retries ?? 1)) {
+  return Astro.redirect(node.data.failure_to);
+}
 
 // 4. Render the entry to HTML in the template
-const { Content } = await render(post);
+const { Content } = await render(node);
 ---
 
 <!doctype html>
@@ -29,32 +38,15 @@ const { Content } = await render(post);
   <body>
     <main transition:animate={slide({})}>
       {
-        post.data.protect && !session?.granted ? (
-          <NodePassword prompt={post.data.protect.prompt} />
+        node.data.password && !session?.granted ? (
+          <NodePassword prompt={node.data.prompt ?? "Enter password"} />
         ) : (
           <Content />
-          <ul>
-            {
-              post.data.links?.map((l) => (
-                <li>
-                  <a href={l.to}>{l.label}</a>
-                </li>
-              ))
-            }
-          </ul>
         )
       }
-
     </main>
   </body>
 </html>
-
-<script>
-  import dialogPolyfill from "dialog-polyfill";
-
-  let dialog = document.querySelectorAll("dialog");
-  dialog.forEach((d) => dialogPolyfill.registerDialog(d));
-</script>
 
 <style>
   body {

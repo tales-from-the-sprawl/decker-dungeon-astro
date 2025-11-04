@@ -19,16 +19,11 @@ const dungeon = defineCollection({
   }),
   schema: () =>
     z.object({
-      links: z
-        .array(
-          z.object({
-            to: z.string(),
-            label: z.string(),
-            protect: protectSchema.optional(),
-          })
-        )
-        .optional(),
-      protect: protectSchema.optional(),
+      password: z.string().optional(),
+      prompt: z.string().optional(),
+      retries: z.number().optional(),
+      failure_to: z.string().optional(),
+      error_to: z.array(z.string()).optional(),
     }),
 });
 

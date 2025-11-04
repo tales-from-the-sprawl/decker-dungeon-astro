@@ -2,7 +2,6 @@
 import { getCollection } from "astro:content";
 import BaseHead from "../components/BaseHead.astro";
 import { SITE_DESCRIPTION, SITE_TITLE } from "../consts";
-import Password from "../components/Password.astro";
 
 // const dungeons = await getCollection("dungeon", (d) => !d.id.includes("/"));
 const dungeons = await getCollection("dungeon");
@@ -16,8 +15,6 @@ const dungeons = await getCollection("dungeon");
   <body>
     <main>
       <h1 class="headline">Into the Matrix</h1>
-
-      <Password prompt="Testing" />
 
       <p>Dungeons:</p>
       <ul>
