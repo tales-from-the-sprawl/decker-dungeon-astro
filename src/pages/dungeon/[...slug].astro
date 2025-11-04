@@ -1,0 +1,67 @@
+---
+export const prerender = false;
+import { getEntry, render } from "astro:content";
+import BaseHead from "../../components/BaseHead.astro";
+import { slide } from "astro:transitions";
+import NodePassword from "../../components/NodePassword.astro";
+
+// 1. Get the slug from the incoming server request
+const { slug } = Astro.params;
+if (slug === undefined) {
+  return Astro.redirect("/404");
+}
+// 2. Query for the entry directly using the request slug
+const post = await getEntry("dungeon", slug);
+// 3. Redirect if the entry does not exist
+if (post === undefined) {
+  return Astro.redirect("/404");
+}
+
+const session = await Astro.session?.get(`node:${slug}`);
+
+// 4. Render the entry to HTML in the template
+const { Content } = await render(post);
+---
+
+<!doctype html>
+<html lang="en">
+  <BaseHead title="Decker Dungeon" description="Hacking in style" />
+  <body>
+    <main transition:animate={slide({})}>
+      {
+        post.data.protect && !session?.granted ? (
+          <NodePassword prompt={post.data.protect.prompt} />
+        ) : (
+          <Content />
+          <ul>
+            {
+              post.data.links?.map((l) => (
+                <li>
+                  <a href={l.to}>{l.label}</a>
+                </li>
+              ))
+            }
+          </ul>
+        )
+      }
+
+    </main>
+  </body>
+</html>
+
+<script>
+  import dialogPolyfill from "dialog-polyfill";
+
+  let dialog = document.querySelectorAll("dialog");
+  dialog.forEach((d) => dialogPolyfill.registerDialog(d));
+</script>
+
+<style>
+  body {
+    padding: 2rem;
+  }
+  main {
+    max-width: 75ch;
+    width: 100%;
+  }
+</style>
