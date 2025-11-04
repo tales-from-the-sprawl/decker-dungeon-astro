@@ -8,9 +8,12 @@ import node from '@astrojs/node';
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://example.com',
-  integrations: [mdx(), sitemap()],
+  site: 'https://ddng.databladet.se',
+  integrations: [mdx()],
   output: 'server',
+  devToolbar: {
+    enabled: false
+  },
 
   adapter: node({
     mode: 'standalone',
