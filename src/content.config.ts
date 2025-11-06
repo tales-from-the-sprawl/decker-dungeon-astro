@@ -19,6 +19,7 @@ const dungeon = defineCollection({
   }),
   schema: () =>
     z.object({
+      username: z.string().optional(),
       password: z.string().optional(),
       prompt: z.string().optional(),
       retries: z.number().optional(),

@@ -8,6 +8,7 @@ export const server = {
     input: z.object({
       node: z.string(),
       password: z.string(),
+      username: z.string().optional(),
     }),
     handler: async (input, context) => {
       const node = await getEntry("dungeon", input.node);
@@ -27,7 +28,10 @@ export const server = {
 
       if (session.granted) {
         return { granted: true };
-      } else if (!node.data.password || node.data.password === input.password) {
+      } else if (
+        (!node.data.password || node.data.password === input.password) &&
+        (!node.data.username || node.data.username === input.username)
+      ) {
         session.granted = true;
         context.session?.set(`node:${input.node}`, session);
 

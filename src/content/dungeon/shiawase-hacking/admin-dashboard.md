@@ -1,5 +1,6 @@
 ---
 prompt: Enter your Nobunaga Admin Credentials
+username: Kevin
 password: admin
 retries: 3
 error_to:
