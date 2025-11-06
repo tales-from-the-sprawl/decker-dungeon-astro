@@ -51,4 +51,26 @@ export const server = {
       }
     },
   }),
+
+  /* Action to reset the attemts on passwords */
+  reset: defineAction({
+    accept: "form",
+    input: z.object({
+      password: z.string(),
+    }),
+    handler: async (input, context) => {
+      if (input.password === "1337") {
+        /* Resets everything. Password you have entered correctly and password tries. */
+        context.session?.destroy();
+      } else if (input.password === "4242") {
+        /* Resets all passwords tries back to zero */
+        for (const key of await context.session?.keys()) {
+          const resetvalue = await context.session?.get(key);
+          resetvalue.retries = 0;
+          context.session?.set(key, resetvalue);
+        }
+      }
+      /* konst sätts till noll */
+    },
+  }),
 };

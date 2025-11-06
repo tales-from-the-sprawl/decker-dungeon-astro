@@ -1,0 +1,29 @@
+---
+export const prerender = false;
+import { getEntry, render } from "astro:content";
+import { slide } from "astro:transitions";
+import { actions } from "astro:actions";
+import BaseHead from "../components/BaseHead.astro";
+import NodePassword from "../components/NodePassword.astro";
+---
+
+<!doctype html>
+<html lang="en">
+  <BaseHead title="Decker Dungeon" description="Hacking in style" />
+  <body>
+    <main transition:animate={slide({})}>
+      <form method="post" action={actions.reset}>
+        <fieldset>
+          <span>Enter reset code</span>
+          <input
+            type="password"
+            placeholder="Password"
+            name="password"
+            autocomplete="off"
+          />
+          <button type="submit">Submit</button>
+        </fieldset>
+      </form>
+    </main>
+  </body>
+</html>
