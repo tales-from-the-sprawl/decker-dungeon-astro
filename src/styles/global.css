@@ -9,6 +9,11 @@ dialog {
   background: var(--background);
 }
 
+.danger {
+  --foreground: oklch(57.7% 0.245 27.325);
+  --accent: oklch(57.7% 0.245 27.325);
+}
+
 dialog > form > fieldset {
   border: none;
 }
