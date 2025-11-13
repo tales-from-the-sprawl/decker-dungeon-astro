@@ -25,6 +25,7 @@ const dungeon = defineCollection({
       retries: z.number().optional(),
       failure_to: z.string().optional(),
       error_to: z.array(z.string()).optional(),
+      color: z.string().optional(),
     }),
 });
 

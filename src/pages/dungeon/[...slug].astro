@@ -35,11 +35,15 @@ const { Content } = await render(node);
 <!doctype html>
 <html lang="en">
   <BaseHead title="Decker Dungeon" description="Hacking in style" />
-  <body>
+  <body class={node.data.color}>
     <main transition:animate={slide({})}>
       {
-        node.data.password && !session?.granted ? (
-          <NodePassword prompt={node.data.prompt ?? "Enter password"} />
+        (node.data.password || node.data.username) && !session?.granted ? (
+          <NodePassword
+            prompt={node.data.prompt ?? "Enter password"}
+            hasUsername={!!node.data.username}
+            hasPassword={!!node.data.password}
+          />
         ) : (
           <Content />
         )
